@@ -13,3 +13,5 @@ I learn a lot of stuff related to data science skills. This bootcamp as follow
 - Data Visualization
 - Essential Stat
 - Essential Maching Learning
+
+You can find me in LinkedIn -> 
