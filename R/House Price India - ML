@@ -1,0 +1,56 @@
+library(caret)
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+
+# read & check data
+full_data <- read_excel("House Price India.xlsx")
+
+full_data %>%
+  complete.cases %>%
+  mean()
+
+# check graph
+full_data$Price <- log(full_data$Price)
+clean_full_data <- full_data[,-c(1,2)]
+
+ggplot(data = clean_full_data, aes(full_data$Price)) +
+  geom_histogram(bins=100) +
+  theme_minimal() +
+  labs(title = "Distribution of House Price India",
+       x = "Price",
+       y = "Count of house")
+
+
+## Build prediction model
+
+# 01 prep data
+split_data <- function(df) {
+  set.seed(42)
+  n <- nrow(df)
+  train_id <- sample(1:n, size=0.8*n)
+  train_df <- df[train_id, ]
+  test_df <- df[-train_id, ]
+  return(list(training = train_df, testing = test_df))
+}
+
+prep_data <- split_data(clean_full_data)
+train_df <- prep_data$training
+test_df <- prep_data$testing
+
+# 02 training model
+set.seed(42)
+lm_model <- train(Price~.,
+                  data = train_df,
+                  method ="lm")
+
+# 03 score model
+p <- predict(lm_model, newdata = test_df)
+
+# 04 evaluate model
+mae <- mean(abs(p-test_df$Price))
+rmse <- sqrt(mean(p-test_df$Price)**2)
+
+# summary
+rmse
+mae
